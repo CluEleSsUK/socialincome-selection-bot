@@ -66,6 +66,12 @@ This is name the bot will use as its author parameter for git commits
 This is how often (in milliseconds) the bot will check the github repo for changes and potentially trigger any outstanding draws.
 
 
+## Miscellaneous
+You can run the tests with `npm test`.
+You can run the linter with `npm run lint`.
+You can generate pure javascript by running `npm run build`.
+If you get some issues such as `ReferenceError: fetch is not defined`, you probably need to update your version of Node to 19.
+
 ## TODO
 - [ ] push support for the bot (rather than just storing things locally leading to merge conflicts)
 - [ ] Firebase integration for storing new participants in the `longlist.txt`
