@@ -20,12 +20,23 @@ In the case of socialincome.org, this will be anonymised userIDs for each partic
 - upcoming-draws.txt
 
 `upcoming-draws.txt` contains any draws you wish the bot to make.  
-Each line constitutes a draw, and should be in the format `$millisecondsSince1970 $numberOfItemsFromLongListChosen`, e.g. the entry `1684849036926000 10` would choose 10 participants from the long list on the 23rd of May 2023 ~13:37UTC
+Each line constitutes a draw, and should be in the following format:  
+`$millisecondsSince1970 $numberOfItemsFromLongListChosen`, 
+e.g. the entry `1684849036926000 10` would choose 10 participants from the long list on the 23rd of May 2023 ~13:37UTC
 
 - finished-draws.txt
 
 `finished-draws.txt` will contain the output of any draws that have been completed by the bot.  
-Once the bot completes a draw, it will remove the drawn entries from `longlist.txt`, remove the upcoming draw line from `upcoming-draws.txt`, and enter the results of the draw in `finished-draws.txt`. These results are of course repeatable by anybody running the code.
+Once the bot completes a draw, it will remove the drawn entries from `longlist.txt`, remove the upcoming draw line from `upcoming-draws.txt`, and enter the results of the draw in `finished-draws.txt`. These results are of course repeatable by anybody running the code.  
+The output will be in the following format:  
+`$timeOfDraw $hashOfLongList $drawn,entries,separated,by,commas $randomnessUsed`,  
+e.g. `1684850153837 5582919974b9af78ef505a87a7d9915e1e013826a41ea7dbdd572f46b977979f abc123 e8fee7dac6eb2b89df97d631cfccedbada7d5d05495bb546eef462e4145fdf8f` means that:
+- at `1684850153837`ms from 1970 (ie. 23rd of May 2023 ~13:56UTC)
+- from a list with the SHA256 hash `5582919974b9af78ef505a87a7d9915e1e013826a41ea7dbdd572f46b977979f` 
+- the entry `abc123` was drawn from the long list 
+- using the drand randomness value `e8fee7dac6eb2b89df97d631cfccedbada7d5d05495bb546eef462e4145fdf8f`  
+
+Note: the SHA256 digest and random value (also a SHA256 digest) are both encoded in hexadecimal.
 
 ### Application
 
