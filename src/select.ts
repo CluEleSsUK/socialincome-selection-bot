@@ -37,7 +37,7 @@ export async function select(options: SelectionOptions): Promise<SelectionOutput
     // let's get the chosen random number from drand
     const beacon = await fetchBeacon(options.drandClient, options.round)
 
-    // We sort the values lexographically to ensure repeatability
+    // We sort the values lexicographically to ensure repeatability
     // then we're going to hash the randomness for each draw we want to do and turn it into an index.
     // We then draw the value for that index from our `remainingValues` array,
     // remove it from that array, and repeat the process until we have no draws left to do
@@ -48,7 +48,7 @@ export async function select(options: SelectionOptions): Promise<SelectionOutput
 
     while (remainingDraws > 0) {
         currentRandomness = sha256.create().update(currentRandomness).digest()
-        const chosenIndex = indexFromRandomness(currentRandomness, remainingDraws)
+        const chosenIndex = indexFromRandomness(currentRandomness, remainingValues.length)
 
         chosenValues = [...chosenValues, remainingValues[chosenIndex]]
         remainingValues = [

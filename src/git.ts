@@ -17,7 +17,7 @@ export async function initialise(config: GitConfig): Promise<void> {
     try {
         await fs.mkdir(dir)
 
-        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     } catch (err: any) {
         if (err.code !== "EEXIST") {
             throw err
