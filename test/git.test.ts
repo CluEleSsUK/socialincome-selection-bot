@@ -6,11 +6,13 @@ import {fetchState, GitConfig, initialise, parseFinishedDraw, parseUpcomingDraw,
 export const testConfig: GitConfig = {
     workingDir: "./state-repo",
     repoURL: "https://github.com/CluEleSsUK/cool-test.git",
-    gitName: "social-income-bot"
+    gitName: "social-income-bot",
+    authToken: "fake-token"
 }
 describe("git", () => {
 
-    describe("e2e", () => {
+    // skipped so as not to upload a github token
+    describe.skip("e2e", () => {
         it("can update and read files from git", async () => {
             const participantToAdd = randomUUID()
 
