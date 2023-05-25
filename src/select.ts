@@ -15,11 +15,19 @@ export type SelectionOutput = {
     winners: Array<string>
     randomness: string
 }
+
 export async function select(options: SelectionOptions): Promise<SelectionOutput> {
+    // sort the values to ensure deterministic behaviour and avoid
+    // attackers being able to modify list ordering to bias the result
+    const sortedValues = options.values.slice().sort()
+    // we generate a hash of that list as an input for the selection process
+    // and also an output for transparency
+    const hashedInput = hashInput(sortedValues)
+
     // if the count is 0, return no winners
     if (options.count === 0) {
         return {
-            hashedInput: hashInput(options.values),
+            hashedInput,
             winners: [],
             randomness: ""
         }
@@ -28,7 +36,7 @@ export async function select(options: SelectionOptions): Promise<SelectionOutput
     // if we're picking equal or more values than exist, return them all
     if (options.count >= options.values.length) {
         return {
-            hashedInput: hashInput(options.values),
+            hashedInput,
             winners: options.values,
             randomness: ""
         }
@@ -38,18 +46,29 @@ export async function select(options: SelectionOptions): Promise<SelectionOutput
     const beacon = await fetchBeacon(options.drandClient, options.round)
 
     // We sort the values lexicographically to ensure repeatability
-    // then we're going to hash the randomness for each draw we want to do and turn it into an index.
+    // we set our initial randomness as a hash of the list of values and the drand randomness,
+    // to commit the draw to a specific list of values.
+    // then we're going to re-hash the randomness for each draw we want to do and turn it into an index.
     // We then draw the value for that index from our `remainingValues` array,
     // remove it from that array, and repeat the process until we have no draws left to do
-    let remainingValues = options.values.slice().sort()
+    let remainingValues = sortedValues
     let remainingDraws = options.count
-    let currentRandomness: Uint8Array = Buffer.from(beacon.randomness, "hex")
+    let currentRandomness: Uint8Array = sha256.create()
+        .update(hashedInput)
+        .update(Buffer.from(beacon.randomness, "hex"))
+        .digest()
     let chosenValues: string[] = []
 
     while (remainingDraws > 0) {
-        currentRandomness = sha256.create().update(currentRandomness).digest()
+        // create the next random value
+        currentRandomness = sha256.create()
+            .update(currentRandomness)
+            .digest()
+
+        // use that randomness to derive the index of the next chosen value
         const chosenIndex = indexFromRandomness(currentRandomness, remainingValues.length)
 
+        // remove the chosen value from the remaining values and add it to the chosen values
         chosenValues = [...chosenValues, remainingValues[chosenIndex]]
         remainingValues = [
             ...remainingValues.slice(0, chosenIndex),
@@ -59,7 +78,7 @@ export async function select(options: SelectionOptions): Promise<SelectionOutput
     }
 
     return {
-        hashedInput: hashInput(options.values),
+        hashedInput,
         winners: chosenValues,
         randomness: beacon.randomness
     }
@@ -81,5 +100,10 @@ function bufferToBigInt(buffer: Uint8Array): bigint {
 }
 
 function hashInput(input: Array<string>): string {
-    return Buffer.from(sha256.create().update(input.join()).digest()).toString("hex")
+    // joining with newlines allows users to hash the file
+    // themselves easily for comparisons
+    const digest = sha256.create()
+        .update(input.join("\n"))
+        .digest()
+    return Buffer.from(digest).toString("hex")
 }
