@@ -5,6 +5,7 @@ type Config = {
     workingDir: string
     repoURL: string
     gitName: string
+    authToken: string
     refreshTimeMs: number,
 }
 

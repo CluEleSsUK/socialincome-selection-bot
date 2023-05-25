@@ -9,6 +9,7 @@ export type GitConfig = {
     workingDir: string
     repoURL: string
     gitName: string
+    authToken: string
 }
 
 export async function initialise(config: GitConfig): Promise<void> {
@@ -89,8 +90,10 @@ export async function writeState(config: GitConfig, state: RepoState): Promise<v
         message: "storing finished draw"
     })
 
-    // this requires a little work as it needs some auth magic
-    // await git.push(gitConf)
+    await git.push({
+        ...gitConf,
+        onAuth: () => ({username: config.authToken})
+    })
 }
 
 async function readLines(workingDir: string, filepath: string): Promise<Array<string>> {
